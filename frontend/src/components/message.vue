@@ -1,20 +1,33 @@
 <template>
   <div class="message" style="height: 95%">
-    <!--    <el-dialog :visible.sync="dialogVisible">-->
-    <!--&lt;!&ndash;      <user-login></user-login>&ndash;&gt;-->
-    <!--      <span>这是一段信息</span>-->
-    <!--      <span slot="footer" class="dialog-footer">-->
-    <!--    <el-button @click="dialogVisible = false">取 消</el-button>-->
-    <!--    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
-    <!--  </span>-->
-    <!--    </el-dialog>-->
+    <el-dialog
+        v-model="dialogVisible"
+        width="30%"
+    >
+      <user-login v-if="!hasLogin" v-on:login-success="loginSuccess"></user-login>
+      <div v-else>
+        <div>你好，{{username}}</div>
+      </div>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button type="danger" v-if="hasLogin" @click="hasLogin = false">退出</el-button>
+        <el-button @click="dialogVisible = false">取消</el-button>
+      </span>
+      </template>
+    </el-dialog>
 
-    <el-row style="transition: height 1s;" :style="{ height: computedHeight1 }"></el-row>
+    <el-row style="transition: height 1s;" :style="{ height: computedHeight1 }" type="flex" justify="center">
+      <el-col style="display: flex;justify-content: flex-end;">
+        <div style="color:white">{{shownUsername}}</div>
+        <el-icon size="30" color="white" @click="dialogVisible = true"><User /></el-icon>
+      </el-col>
+
+    </el-row>
     <el-row type="flex" justify="center">
       <el-col :span="6"
               style="color:white;font-size: 40px;display: flex;justify-content: flex-end;align-items: center;">数智医疗
       </el-col>
-      <el-col :span="2"><img src="src/assets/doctor.png" width="106" height="115" alt="logo"></el-col>
+      <el-col :span="2"><img src="src/assets/doctor.png" width="140" height="150" alt="logo"></el-col>
       <el-col :span="6" style="color:white;font-size: 40px;display: flex;align-items: center;">AI私助</el-col>
     </el-row>
 
@@ -38,6 +51,7 @@
 
 <script>
 import UserLogin from "./UserLogin.vue";
+import { ElNotification } from 'element-plus';
 import {nextTick} from "vue";
 import axios from 'axios';
 
@@ -47,7 +61,10 @@ export default {
     return {
       messages: [],
       content: '',
-      dialogVisible: true,
+      dialogVisible: false,
+      hasLogin: false,
+      token: '',
+      username: '',
     }
   },
   methods: {
@@ -58,6 +75,12 @@ export default {
       }
     },
     sendMessage(message) {
+      if(!this.hasLogin){
+        this.messages.push({
+          content: '请先登录'
+        })
+        return
+      }
       this.messages.push({
         content: message,
         self: true
@@ -76,7 +99,6 @@ export default {
         url: '/api/chat2',
         data: param
       }).then(response => {
-        // console.log(response)
         this.messages.push({
           content: response['data']['ans']
         })
@@ -87,23 +109,36 @@ export default {
       nextTick(() => {
         this.moveBottom()
       })
-
     },
     moveBottom() {
       const element = document.getElementById('history')
       element.scrollTop = element.scrollHeight
     },
+    loginSuccess(userInfo) {
+      this.hasLogin = true
+      this.token = userInfo.token
+      this.username = userInfo.username
+      this.dialogVisible = false
+      ElNotification({
+        title: '登陆成功',
+        message: '你好，'+this.username,
+        type: 'success',
+      })
+    }
   },
   computed: {
     messageEmpty() {
       return this.messages.length === 0
     },
     computedHeight1() {
-      return this.messageEmpty ? '30%' : '0%';
+      return this.messageEmpty ? '30%' : '6%';
     },
     computedHeight2() {
-      return this.messageEmpty ? '0%' : '75%';
+      return this.messageEmpty ? '0%' : '74%';
     },
+    shownUsername() {
+      return this.hasLogin ? this.username : '未登录'
+    }
   },
 }
 </script>

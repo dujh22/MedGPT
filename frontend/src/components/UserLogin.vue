@@ -1,39 +1,52 @@
 <template>
   <div class="userLogin">
-    <h2>注册</h2>
-    <form>
-      <div class="form-group">
-        <label for="username">用户名</label>
-        <input type="text" id="username" v-model="username" required>
-      </div>
-      <div class="form-group">
-        <label for="password">密码</label>
-        <input type="password" id="password" v-model="password" required>
-      </div>
-      <button type="submit" @click.prevent="register">注册</button>
-    </form>
-    <h2>登录</h2>
-    <form>
-      <div class="form-group">
-        <label for="login-username">用户名</label>
-        <input type="text" id="login-username" v-model="loginUsername" required>
-      </div>
-      <div class="form-group">
-        <label for="login-password">密码</label>
-        <input type="password" id="login-password" v-model="loginPassword" required>
-      </div>
-      <button type="submit" @click.prevent="login">登录</button>
-    </form>
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="登录" name="login">
+        <h2>登录</h2>
+        <form>
+          <div class="form-group">
+            <label for="login-username">用户名</label>
+            <input type="text" id="login-username" v-model="loginUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">密码</label>
+            <input type="password" id="login-password" v-model="loginPassword" required>
+          </div>
+          <button type="submit" @click.prevent="login">登录</button>
+        </form>
+      </el-tab-pane>
+      <el-tab-pane label="注册" name="register">
+        <h2>注册</h2>
+        <form>
+          <div class="form-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" v-model="username" required>
+          </div>
+          <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" v-model="password" required>
+          </div>
+          <div class="form-group">
+            <label for="password-ensure">确认密码</label>
+            <input type="password" id="password-ensure" v-model="passwordEnsure" required>
+          </div>
+          <button type="submit" @click.prevent="register">注册</button>
+        </form>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'UserLogin',
   data() {
     return {
+      activeTab: "login",
       username: '',
       password: '',
+      passwordEnsure: '',
       loginUsername: '',
       loginPassword: '',
     };
@@ -46,6 +59,10 @@ export default {
       }
       if (this.password === '') {
         alert('请输入密码');
+        return;
+      }
+      if (this.password !== this.passwordEnsure) {
+        alert('密码不一致');
         return;
       }
       axios.post('/api/register', {
@@ -66,16 +83,20 @@ export default {
         alert('请输入密码');
         return;
       }
-      axios.post('/api/login', {
-        username: this.loginUsername,
-        password: this.loginPassword,
+      this.$emit('login-success', {
+        'username': this.loginUsername,
+        'token': 'fake-token'
       })
-          .then(response => {
-// 登录成功
-          })
-          .catch(error => {
-// 处理登录失败
-          });
+      // axios.post('/api/login', {
+      //   username: this.loginUsername,
+      //   password: this.loginPassword,
+      // })
+      //     .then(response => {
+      //       this.$emit('login-success', response['data']['token'])
+      //     })
+      //     .catch(error => {
+      //       alert('登录失败');
+      //     });
     },
   },
 };
@@ -107,7 +128,7 @@ input {
 
 button {
   padding: 5px 10px;
-  background-color: #009688;
+  background-color: #422C8E;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -115,6 +136,6 @@ button {
 }
 
 button:hover {
-  background-color: #008080;
+  background-color: #422C8E;
 }
 </style>
