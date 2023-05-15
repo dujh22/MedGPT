@@ -39,6 +39,7 @@
 
 <script>
 import axios from 'axios';
+import {ElNotification} from "element-plus";
 export default {
   name: 'UserLogin',
   data() {
@@ -92,10 +93,17 @@ export default {
       //   password: this.loginPassword,
       // })
       //     .then(response => {
-      //       this.$emit('login-success', response['data']['token'])
+      //       this.$emit('login-success', {
+      //         'username': this.loginUsername,
+      //         'token': 'fake-token'
+      //       })
       //     })
       //     .catch(error => {
-      //       alert('登录失败');
+      //       ElNotification({
+      //         title: '登陆失败',
+      //         message: '登陆失败',
+      //         type: 'error',
+      //       })
       //     });
     },
   },
