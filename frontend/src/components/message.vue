@@ -27,7 +27,7 @@
       <el-col :span="6"
               style="color:white;font-size: 40px;display: flex;justify-content: flex-end;align-items: center;">数智医疗
       </el-col>
-      <el-col :span="2"><img src="src/assets/doctor.png" width="140" height="150" alt="logo"></el-col>
+      <el-col :span="2"><img src="/src/assets/doctor.png" width="140" height="150" alt="logo"></el-col>
       <el-col :span="6" style="color:white;font-size: 40px;display: flex;align-items: center;">AI私助</el-col>
     </el-row>
 
@@ -94,11 +94,13 @@ export default {
     replyMessage(message) {
       let param = new URLSearchParams()
       param.append('user', message)
+      param.append('uid', this.username)
       axios({
         method: 'post',
         url: '/api/chat2',
         data: param
       }).then(response => {
+        console.log(response)
         this.messages.push({
           content: response['data']['ans']
         })
