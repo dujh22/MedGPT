@@ -2,11 +2,10 @@
   <div class="message" style="height: 95%">
     <el-dialog
         v-model="dialogVisible"
-        width="30%"
     >
       <user-login v-if="!hasLogin" v-on:login-success="loginSuccess"></user-login>
       <div v-else>
-        <div>你好，{{username}}</div>
+        <div>你好，{{ username }}</div>
       </div>
       <template #footer>
       <span class="dialog-footer">
@@ -18,24 +17,29 @@
 
     <el-row style="transition: height 1s;" :style="{ height: computedHeight1 }" type="flex" justify="center">
       <el-col style="display: flex;justify-content: flex-end;">
-        <div style="color:white">{{shownUsername}}</div>
-        <el-icon size="30" color="white" @click="dialogVisible = true"><User /></el-icon>
+        <div style="color:white">{{ shownUsername }}</div>
+        <el-icon size="30" color="white" @click="dialogVisible = true">
+          <User/>
+        </el-icon>
       </el-col>
 
     </el-row>
     <el-row type="flex" justify="center">
-      <el-col :span="6"
-              style="color:white;font-size: 40px;display: flex;justify-content: flex-end;align-items: center;">数智医疗
+      <el-col :lg="11" :xs="9"
+              style="color:white;font-size: 30px;display: flex;justify-content: flex-end;align-items: center;">数智医疗
       </el-col>
-      <el-col :span="2"><img src="/src/assets/doctor.png" width="140" height="150" alt="logo"></el-col>
-      <el-col :span="6" style="color:white;font-size: 40px;display: flex;align-items: center;">AI私助</el-col>
+      <el-col :lg="2" :xs="6" style="display: flex;justify-content: flex-end;align-items: center;"><img
+          src="/src/assets/doctor.png" alt="logo"></el-col>
+      <el-col :lg="11" :xs="9" style="color:white;font-size: 30px;display: flex;align-items: center;">AI私助</el-col>
     </el-row>
 
     <el-row id="history" style="transition: height 1s; overflow-y: auto;" :style="{ height: computedHeight2}">
       <ul style="width: 95%">
         <li v-for="item in messages">
           <div class="main" :class="{ self: item.self }">
-            <div class="text">{{ item.content }}</div>
+            <div class="text">
+              <span v-html="item.content"></span>
+            </div>
           </div>
         </li>
       </ul>
@@ -51,7 +55,7 @@
 
 <script>
 import UserLogin from "./UserLogin.vue";
-import { ElNotification } from 'element-plus';
+import {ElNotification} from 'element-plus';
 import {nextTick} from "vue";
 import axios from 'axios';
 
@@ -75,7 +79,7 @@ export default {
       }
     },
     sendMessage(message) {
-      if(!this.hasLogin){
+      if (!this.hasLogin) {
         this.messages.push({
           content: '请先登录'
         })
@@ -100,17 +104,21 @@ export default {
         url: '/api/chat2',
         data: param
       }).then(response => {
-        console.log(response)
+        const sentence = response['data']['ans'];
+        const formattedSentence = sentence
+            .replace(/(\d+\.\s)/g, '<br>$1')
+            .replace(/(\(\d+\))/g, "<br>$1")
+            .replace(/(\d+\.)([^：。，]+)(：)/g, '$1<b>$2</b>$3')
+            .replace(/(\d+\))([^：。，]+)(：)/g, '$1<b>$2</b>$3')
         this.messages.push({
-          content: response['data']['ans']
+          content: formattedSentence
+        })
+        nextTick(() => {
+          this.moveBottom()
         })
       }).catch(error => {
         console.log(error)
       });
-
-      nextTick(() => {
-        this.moveBottom()
-      })
     },
     moveBottom() {
       const element = document.getElementById('history')
@@ -123,7 +131,7 @@ export default {
       this.dialogVisible = false
       ElNotification({
         title: '登陆成功',
-        message: '你好，'+this.username,
+        message: '你好，' + this.username,
         type: 'success',
       })
     }
@@ -194,6 +202,19 @@ export default {
         border-left-color: #DEF0FA;
       }
     }
+  }
+}
+
+@media screen and (min-width: 768px) {
+  img {
+    max-width: 140px;
+  }
+}
+
+/* 在移动端设置图片宽度为200像素 */
+@media screen and (max-width: 767px) {
+  img {
+    max-width: 90px;
   }
 }
 

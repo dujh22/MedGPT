@@ -111,12 +111,6 @@ export default {
 </script>
 
 <style>
-.card {
-  width: 400px;
-  border: 1px solid #ccc;
-  padding: 20px;
-  margin: 20px;
-}
 
 .form-group {
   margin-bottom: 10px;
@@ -146,4 +140,5 @@ button {
 button:hover {
   background-color: #422C8E;
 }
+
 </style>
